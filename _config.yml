@@ -6,8 +6,6 @@ gem "github-pages", group: :jekyll_plugins
 
 title: Anthony Martín Gras
 description: Software Engineer with an interest in Machine Learning, Data Science, & Analytics
-linkedin_url: "https://www.linkedin.com/in/anthonymartingras/"
-
 
 show_downloads: false
 
