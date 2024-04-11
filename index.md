@@ -2,8 +2,6 @@
 layout: default
 ---
 
-<link rel="stylesheet" href="/_sass/style.scss">
-
 My name is Anthony Martín Gras (https://www.linkedin.com/in/anthonymartingras/). I'm a machine learning enthusiast passionate about exploring various data science projects.
 
 ## Selected Machine Learning Projects
