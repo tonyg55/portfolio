@@ -1,1 +1,5 @@
-Welcome to my machine learning portfolio. This repository contains code and analysis of data science projects I've worked on professionaly (anonymized) and personally. All notebooks are created with the aim of being ready for deployment to production.
+## Anthony's Data Science & Machine Learning Portfolio
+
+The projects in this repository were made with production in mind and include:
+
+- Healthcare Management: Forecasting Cost of Care Per Patient using Gradient Boosting Regression
