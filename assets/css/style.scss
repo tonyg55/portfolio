@@ -1,0 +1,15 @@
+@import "{{ site.theme }}";
+
+// Define your custom styles for the dark theme here
+body {
+    background-color: #5A5A5A;
+    color: #fff;
+}
+
+a {
+    color: #fff;
+}
+
+a:hover {
+    color: #ccc;
+}
