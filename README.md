@@ -1,1 +1,1 @@
-Welcome to my machine learning portfolio. This repository contains code and analysis of data science projects I've worked on professionaly and personally.
+Welcome to my machine learning portfolio. This repository contains code and analysis of data science projects I've worked on professionaly (anonymized) and personally. All notebooks are created with the aim of being ready for deployment to production.
