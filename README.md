@@ -1,4 +1,4 @@
-## Anthony Martín Gras' Data Science & Machine Learning Portfolio
+## Anthony Martín Gras' Machine Learning & Data Science Portfolio
 
 The projects in this repository include:
 
