@@ -2,6 +2,7 @@
 
 The projects in this repository include:
 
+- Purchase Probability API: Deployment of a Logistic Regression model to production ready to return predictions
 - Healthcare Management: Forecasting Cost of Care Per Patient using Gradient Boosting Regression
 - Computer Vision: Classifying Spiral Galaxies with Convolutional Neural Networks
 
