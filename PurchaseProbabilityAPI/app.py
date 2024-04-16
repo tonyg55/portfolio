@@ -26,23 +26,29 @@ def predict(data):
         variables_dict_sorted = dict(sorted(variables_dict.items()))
         predicted_class_list = []
 
-        if isinstance(data, list):  # Batch request by checking if data is a list
+        if isinstance(data, list):  # Batch request by checking if data is a list. O(n) time complexity
             for item in data:
                 data_df = pd.DataFrame(item, index=[0], dtype=float)
+
                 # Get the prediction probabilities
                 predictions = model.predict(data_df)
                 predictions_list.append(predictions.tolist())
+
                 # Get the phat by calculating the 75th percentile of the predicted probabilities 
                 # as specified by business partner
                 cutoff = np.percentile(predictions, 75)
+
                 # Apply the cutoff to get the predicted class
                 predicted_class = (predictions >= cutoff).astype(int)
                 predicted_class_list.append(predicted_class.tolist())
         else:  # Single request
             data_df = pd.DataFrame(data, index=[0], dtype=float)
+
             predictions = model.predict(data_df)
             predictions_list.append(predictions.tolist())
+
             cutoff = np.percentile(predictions, 75)
+
             predicted_class = (predictions >= cutoff).astype(int)
             predicted_class_list.append(predicted_class.tolist())
 
@@ -52,7 +58,7 @@ def predict(data):
             "phat": predictions_list,
             "variables": variables_dict_sorted
         }
-        print("******* MADE IT HERE 6")
+
     except FileNotFoundError as e:
         raise FileNotFoundError(f"No model found in {file_path}")
     except HTTPException as e:
