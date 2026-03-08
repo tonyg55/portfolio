@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt flake8 black pytest pytest-cov
+
+      - name: Lint (flake8)
+        run: flake8 src/ main.py --max-line-length=120
+
+      - name: Format check (black)
+        run: black --check src/ main.py
+
+      - name: Run tests
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          PGPASSWORD: testpass
+        run: |
+          pytest tests/ -v --cov=src --cov-report=term-missing
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        if: success()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  docker-build:
+    name: Docker Compose Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate docker-compose
+        run: docker compose -f docker/docker-compose.yml config
+
+  terraform-validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env: [dev, prod]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.x"
+      - name: Terraform Init (${{ matrix.env }})
+        run: terraform -chdir=terraform/environments/${{ matrix.env }} init -backend=false
+      - name: Terraform Validate (${{ matrix.env }})
+        run: terraform -chdir=terraform/environments/${{ matrix.env }} validate

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: postgres
+data:
+  POSTGRES_DB: appdb
+  POSTGRES_USER: appuser
+  # Tuning params - adjust for your node size
+  POSTGRES_INITDB_ARGS: "--data-checksums"
+  postgresql.conf: |
+    # Connection settings
+    max_connections = 100
+    listen_addresses = '*'
+
+    # Memory (tune for your pod limits)
+    shared_buffers = 256MB
+    work_mem = 4MB
+    maintenance_work_mem = 64MB
+    effective_cache_size = 768MB
+
+    # WAL
+    wal_level = replica
+    max_wal_size = 1GB
+    min_wal_size = 80MB
+    checkpoint_completion_target = 0.9
+
+    # Autovacuum
+    autovacuum = on
+    autovacuum_vacuum_scale_factor = 0.05
+    autovacuum_analyze_scale_factor = 0.05
+
+    # Logging
+    log_min_duration_statement = 1000
+    log_checkpoints = on
+    log_connections = on
+    log_lock_waits = on
+
+    # Stats
+    track_activities = on
+    track_counts = on
+    track_io_timing = on

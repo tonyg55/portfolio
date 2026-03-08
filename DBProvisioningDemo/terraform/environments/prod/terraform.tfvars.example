@@ -1,0 +1,6 @@
+aws_region  = "us-east-1"
+aws_profile = "prod"
+pg_version  = "16.2"
+db_name     = "appdb"
+db_username = "appuser"
+# db_password = set via TF_VAR_db_password or CI/CD secrets

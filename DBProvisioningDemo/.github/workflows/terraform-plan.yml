@@ -1,0 +1,57 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    paths:
+      - "terraform/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  terraform-plan:
+    name: Plan (${{ matrix.env }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env: [dev]  # Add prod when ready
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.x"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/environments/${{ matrix.env }} init
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform -chdir=terraform/environments/${{ matrix.env }} plan \
+            -var="db_password=${{ secrets.TF_VAR_DB_PASSWORD }}" \
+            -no-color -out=tfplan 2>&1 | tee plan_output.txt
+        continue-on-error: true
+
+      - name: Comment PR with plan
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('plan_output.txt', 'utf8');
+            const truncated = plan.length > 60000 ? plan.slice(0, 60000) + '\n...(truncated)' : plan;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Terraform Plan (\`${{ matrix.env }}\`)\n\`\`\`\n${truncated}\n\`\`\``
+            });

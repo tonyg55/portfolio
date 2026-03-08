@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: postgres
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/managed-by: pg-provision
+spec:
+  clusterIP: None  # Headless — for StatefulSet DNS
+  selector:
+    app: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-lb
+  namespace: postgres
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/managed-by: pg-provision
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
