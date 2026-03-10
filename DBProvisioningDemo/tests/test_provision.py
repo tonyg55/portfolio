@@ -1,5 +1,5 @@
 """
-Developer request simulation tests.
+Mimicking developer provision requests.
 
 These tests mock Docker so they run without Docker installed,
 but exercise the real provisioner, CLI, and health check code paths.
@@ -57,9 +57,9 @@ class TestLocalProvisioner:
         # Second call: docker run → container ID
         # Third call: docker inspect → host port
         mock_run.side_effect = [
-            _mock_run(stdout=""),                          # container does not exist
-            _mock_run(stdout="abc123def456\n"),            # docker run succeeds
-            _mock_run(stdout="54321\n"),                   # docker inspect returns port
+            _mock_run(stdout=""),                          # container does not exist, nothing to return
+            _mock_run(stdout="abc123def456\n"),            # docker run succeeds and returns a sample container id
+            _mock_run(stdout="54321\n"),                   # docker inspect returns sample port number
         ]
 
         result = provisioner.provision(
@@ -162,8 +162,8 @@ class TestCLI:
         """
         mock_run.side_effect = [
             _mock_run(stdout=""),           # container does not exist
-            _mock_run(stdout="abc123\n"),   # docker run
-            _mock_run(stdout="5555\n"),     # docker inspect port
+            _mock_run(stdout="abc123\n"),   # docker run and returns sample container id
+            _mock_run(stdout="5555\n"),     # docker inspect return sample port number
         ]
 
         result = runner.invoke(cli, [
