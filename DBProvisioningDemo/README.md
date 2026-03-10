@@ -1,4 +1,4 @@
-# pg-provision — PostgreSQL Provisioning Portfolio
+# pg-provision — PostgreSQL Provisioning Demo
 
 ![CI](https://img.shields.io/github/actions/workflow/status/YOUR_USER/DBProvisioningDemo/ci.yml?label=CI&logo=github)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue?logo=python)
@@ -6,7 +6,7 @@
 ![PostgreSQL](https://img.shields.io/badge/postgresql-14%20|%2015%20|%2016-336791?logo=postgresql)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-A production-quality Platform Engineering project demonstrating PostgreSQL database provisioning across three infrastructure targets: **local Docker**, **AWS RDS**, and **Kubernetes**. Built to showcase real-world platform engineering skills including IaC, observability, CLI tooling, and GitOps automation.
+A production-quality Platform Engineering project demonstrating PostgreSQL database provisioning across three infrastructure targets: **local Docker**, **AWS RDS**, and **Kubernetes**. Built to showcase real-world platform engineering including IaC, observability, CLI tooling, and GitOps automation.
 
 ---
 
