@@ -70,6 +70,21 @@ class AWSRDSProvisioner(BaseProvisioner):
         try:
             resp = self.rds.create_db_instance(**kwargs)
         except ClientError as e:
+            code = e.response["Error"]["Code"]
+            if code == "DBInstanceAlreadyExists":
+                log.info(f"RDS instance '{identifier}' already exists — returning existing details.")
+                desc = self.rds.describe_db_instances(DBInstanceIdentifier=identifier)
+                db = desc["DBInstances"][0]
+                endpoint = db.get("Endpoint", {})
+                return ProvisionResult(
+                    name=name,
+                    host=endpoint.get("Address", "pending"),
+                    port=endpoint.get("Port", 5432),
+                    db_name=db_name,
+                    username=username,
+                    version=db["EngineVersion"],
+                    extra={"identifier": identifier, "arn": db["DBInstanceArn"]},
+                ).as_dict()
             raise RuntimeError(f"RDS CreateDBInstance failed: {e}") from e
 
         log.info(f"Waiting for {identifier} to become available (this may take several minutes)...")

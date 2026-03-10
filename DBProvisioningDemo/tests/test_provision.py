@@ -81,22 +81,31 @@ class TestLocalProvisioner:
         assert result["container"] == "pg-payments-db"
 
     @patch("src.provisioner.local.subprocess.run")
-    def test_provision_duplicate_fails(self, mock_run, provisioner):
+    def test_provision_duplicate_returns_existing(self, mock_run, provisioner):
         """
-        Developer tries to provision a database that already exists.
-        Expect: RuntimeError raised.
+        Developer provisions a database that already exists.
+        Expect: existing connection details returned (create-or-return idempotency).
         """
-        mock_run.return_value = _mock_run(stdout="existing-container-id\n")
+        # First call: docker ps -a (container exists) → container ID
+        # Second call: docker inspect → host port
+        mock_run.side_effect = [
+            _mock_run(stdout="existing-container-id\n"),  # container exists
+            _mock_run(stdout="54321\n"),                  # docker inspect returns port
+        ]
 
-        with pytest.raises(RuntimeError, match="already exists"):
-            provisioner.provision(
-                name="payments-db",
-                db_name="paymentsdb",
-                username="devuser",
-                password="supersecret",
-                size="small",
-                version="16",
-            )
+        result = provisioner.provision(
+            name="payments-db",
+            db_name="paymentsdb",
+            username="devuser",
+            password="supersecret",
+            size="small",
+            version="16",
+        )
+
+        assert result["name"] == "payments-db"
+        assert result["host"] == "localhost"
+        assert result["port"] == 54321
+        assert result["status"] == "running"
 
     @patch("src.provisioner.local.subprocess.run")
     def test_destroy_success(self, mock_run, provisioner):
