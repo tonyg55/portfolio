@@ -21,9 +21,19 @@ class LocalProvisioner(BaseProvisioner):
         container_name = f"pg-{name}"
         log.info(f"Provisioning local container: {container_name} (pg{version})")
 
-        # Check if already exists
+        # Idempotency: return existing instead of failing
         if self._container_exists(container_name):
-            raise RuntimeError(f"Container '{container_name}' already exists.")
+            log.info(f"Container '{container_name}' already exists — returning existing details.")
+            host_port = self._get_host_port(container_name)
+            return ProvisionResult(
+                name=name,
+                host="localhost",
+                port=host_port,
+                db_name=db_name,
+                username=username,
+                version=version,
+                extra={"container": container_name},
+            ).as_dict()
 
         cmd = [
             "docker", "run", "-d",

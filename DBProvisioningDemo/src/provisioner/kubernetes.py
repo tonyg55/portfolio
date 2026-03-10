@@ -8,6 +8,7 @@ log = logging.getLogger(__name__)
 
 try:
     from kubernetes import client, config as k8s_config
+    from kubernetes.client.exceptions import ApiException
 
     def _load_kube_config():
         try:
@@ -36,14 +37,24 @@ class KubernetesProvisioner(BaseProvisioner):
 
     # ── Public API ─────────────────────────────────────────────────────────────
 
+    def _create_or_skip(self, create_fn):
+        """Call create_fn; if resource already exists (409), log and continue."""
+        try:
+            create_fn()
+        except ApiException as e:
+            if e.status == 409:
+                log.info("Resource already exists — skipping.")
+            else:
+                raise
+
     def provision(self, name, db_name, username, password, size, version) -> dict:
         sc = self.get_size_config(size)
         log.info(f"Provisioning K8s StatefulSet: {name} (pg{version}, {size})")
 
-        self._create_secret(name, username, password)
-        self._create_configmap(name, db_name, username)
-        self._create_statefulset(name, version, sc)
-        self._create_service(name)
+        self._create_or_skip(lambda: self._create_secret(name, username, password))
+        self._create_or_skip(lambda: self._create_configmap(name, db_name, username))
+        self._create_or_skip(lambda: self._create_statefulset(name, version, sc))
+        self._create_or_skip(lambda: self._create_service(name))
 
         host = f"{name}-postgres.{self.ns}.svc.cluster.local"
         return ProvisionResult(
